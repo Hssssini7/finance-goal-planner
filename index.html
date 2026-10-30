@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>目標式財務規劃</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root{
+  --zest:#FFA62B; --breeze:#86C5FF; --tile:#2E5AA7; --gelato:#F8E6A0;
+  --bg:#FFFBE9; --surface:#FFFFFF; --soft:#FDF1BF; --ink:#14284F; --muted:#4D5F86; --line:#E4D9A6;
+  --hero:#2E5AA7; --hero-ink:#FFF6CF; --good:#1F7A4D; --bad:#B4452A;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0E1B38;--surface:#15264A;--soft:#1B3160;--ink:#FFF3C2;--muted:#A9BCE0;--line:#2B4378;--hero:#1B3E7E;--good:#6FD6A0;--bad:#FF9C7E;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#0E1B38;--surface:#15264A;--soft:#1B3160;--ink:#FFF3C2;--muted:#A9BCE0;--line:#2B4378;--hero:#1B3E7E;--good:#6FD6A0;--bad:#FF9C7E;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.7 "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+h1,h2,h3{font-family:"Noto Serif TC","Songti TC",serif;margin:0;line-height:1.3}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+/* hero with tile pattern */
+.hero{background:var(--hero);color:var(--hero-ink);position:relative;overflow:hidden;padding:56px 0 72px}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(30px,5vw,50px);font-weight:800;letter-spacing:.01em}
+.hero h1 em{font-style:normal;color:var(--zest)}
+.hero p{max-width:34em;margin:18px 0 0;color:#DCE8FF}
+.hero-card{background:var(--gelato);color:#14284F;border-radius:22px;padding:22px 24px;border:3px solid var(--zest)}
+.hero-card small{display:block;font-weight:500;color:#3B4C74}
+.hero-card .big{font-family:"Noto Serif TC",serif;font-size:clamp(26px,4vw,36px);font-weight:800;margin:4px 0 12px;color:#1D3F80}
+.bar{height:12px;border-radius:99px;background:rgba(46,90,167,.18);overflow:hidden}
+.bar b{display:block;height:100%;background:linear-gradient(90deg,var(--tile),var(--zest));border-radius:99px;transition:width .5s}
+/* layout */
+main{margin-top:-40px;position:relative}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px}
+.side{position:sticky;top:12px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--soft);padding:5px;border-radius:14px;margin-bottom:18px}
+.tabs button{font:500 14px "Noto Sans TC",sans-serif;border:0;background:none;color:var(--ink);padding:9px 4px;border-radius:10px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--tile);color:#fff}
+fieldset{border:0;padding:0;margin:0 0 6px}
+legend{font:700 15px "Noto Serif TC",serif;padding:0;margin:14px 0 8px;color:var(--tile)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) legend{color:var(--breeze)}}
+label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;margin:8px 0;color:var(--muted)}
+label span{flex:1}
+input[type=number]{width:132px;font:500 15px "Noto Sans TC",sans-serif;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-align:right}
+input:focus-visible,button:focus-visible{outline:3px solid var(--zest);outline-offset:2px}
+[data-m]{display:none}[data-m].on{display:block}
+/* results */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat{border-radius:16px;padding:14px 16px;background:var(--soft)}
+.stat:nth-child(2){background:var(--tile);color:#fff}
+.stat:nth-child(4){background:var(--zest);color:#14284F}
+.stat small{display:block;font-size:13px;opacity:.85}
+.stat b{font:800 clamp(18px,2.2vw,23px)/1.3 "Noto Serif TC",serif;display:block;margin-top:2px;word-break:keep-all}
+h2{font-size:21px;margin:0 0 12px}
+.sec{margin-top:26px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.fx{display:grid;gap:10px}
+.fx div{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--soft);font-size:14px}
+.fx code{font:500 13px ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.fx strong{font-family:"Noto Serif TC",serif;white-space:nowrap}
+.fx .t{font-weight:700;color:var(--tile)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fx .t{color:var(--breeze)}}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:460px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{background:var(--soft);font-weight:700}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}
+.advice{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.advice li{padding:14px 16px 14px 20px;border-radius:14px;background:var(--soft);border-left:6px solid var(--breeze)}
+.advice li.w{border-left-color:var(--zest)}.advice li.g{border-left-color:var(--good)}
+.advice b{display:block}
+.foot{padding:36px 0 48px;color:var(--muted);font-size:13px}
+@media (max-width:900px){
+  .hero .wrap,.grid{grid-template-columns:1fr}.side{position:static}.stats{grid-template-columns:1fr 1fr}
+  .fx div{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.bar b{transition:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>先決定目標，再算出<em>每個月</em>該存多少</h1>
+      <p>用現值 PV、終值 FV、年金 PMT 三個函數，把購屋、退休或任何夢想拆成可執行的月儲蓄，並檢視你現在的計畫夠不夠。</p>
+    </div>
+    <div class="hero-card" aria-live="polite">
+      <small>目前計畫的目標達成率</small>
+      <div class="big" id="heroPct">0%</div>
+      <div class="bar"><b id="heroBar" style="width:0%"></b></div>
+      <small style="margin-top:10px" id="heroNote"></small>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="grid">
+  <aside class="panel side">
+    <div class="tabs" role="group" aria-label="選擇理財目標">
+      <button data-mode="house" aria-pressed="true">購屋頭期款</button>
+      <button data-mode="retire" aria-pressed="false">退休金</button>
+      <button data-mode="custom" aria-pressed="false">自訂目標</button>
+    </div>
+
+    <fieldset data-m="house" class="on">
+      <legend>購屋目標</legend>
+      <label><span>預估購屋總價</span><input type="number" id="price" step="100000"></label>
+      <label><span>房貸成數 (%)</span><input type="number" id="ltv" step="1"></label>
+      <label><span>房貸年利率 (%)</span><input type="number" id="lrate" step="0.1"></label>
+      <label><span>房貸年限 (年)</span><input type="number" id="lyears" step="1"></label>
+    </fieldset>
+    <fieldset data-m="retire">
+      <legend>退休目標</legend>
+      <label><span>退休後每月提領</span><input type="number" id="wd" step="1000"></label>
+      <label><span>提領年數 (年)</span><input type="number" id="wyears" step="1"></label>
+      <label><span>退休期折現率 (%)</span><input type="number" id="drate" step="0.1"></label>
+    </fieldset>
+    <fieldset data-m="custom">
+      <legend>自訂目標</legend>
+      <label><span>目標金額</span><input type="number" id="goal" step="100000"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>我的現況與計畫</legend>
+      <label><span>目前金融資產 (PV₀)</span><input type="number" id="pv0" step="50000"></label>
+      <label><span>每月收入</span><input type="number" id="inc" step="1000"></label>
+      <label><span>每月生活支出</span><input type="number" id="exp" step="1000"></label>
+      <label><span>每月計畫投入 (PMT)</span><input type="number" id="save" step="1000"></label>
+      <label><span>投資年報酬率 (%)</span><input type="number" id="rate" step="0.1"></label>
+      <label><span>距離目標 (年)</span><input type="number" id="years" step="1" min="1"></label>
+    </fieldset>
+  </aside>
+
+  <section class="panel" aria-live="polite">
+    <div class="stats">
+      <div class="stat"><small id="lGoal">目標金額</small><b id="sGoal"></b></div>
+      <div class="stat"><small>依計畫預計累積 (FV)</small><b id="sFv"></b></div>
+      <div class="stat"><small>資金缺口 / 超額</small><b id="sGap"></b></div>
+      <div class="stat"><small>每月至少需投入 (PMT)</small><b id="sPmt"></b></div>
+    </div>
+
+    <h2>資產成長軌跡</h2>
+    <svg class="chart" id="chart" viewBox="0 0 640 300" role="img" aria-label="資產累積與目標金額比較圖"></svg>
+    <div class="legend">
+      <span><i style="background:var(--tile)"></i>依計畫投入</span>
+      <span><i style="background:var(--breeze)"></i>只放著不再投入</span>
+      <span><i style="background:var(--zest)"></i>目標金額</span>
+    </div>
+
+    <div class="sec">
+      <h2>三個核心函數怎麼用在這裡</h2>
+      <div class="fx" id="fx"></div>
+    </div>
+
+    <div class="sec">
+      <h2>不同報酬率下的結果</h2>
+      <div class="tw"><table id="sens"></table></div>
+    </div>
+
+    <div class="sec">
+      <h2>給你的建議</h2>
+      <ul class="advice" id="advice"></ul>
+    </div>
+  </section>
+</div>
+</main>
+<footer class="wrap foot">本頁為教學與試算用途，採月複利、期末投入；結果不構成投資建議，實際報酬與利率會變動。</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const presets={
+ house:{pv0:1000000,inc:65000,exp:25000,save:20000,rate:4,years:5,price:12000000,ltv:75,lrate:2.5,lyears:30},
+ retire:{pv0:1000000,inc:65000,exp:25000,save:20000,rate:4,years:30,wd:40000,wyears:20,drate:3},
+ custom:{pv0:1000000,inc:65000,exp:25000,save:15000,rate:4,years:10,goal:5000000}
+};
+let mode='house';
+const ids=['price','ltv','lrate','lyears','wd','wyears','drate','goal','pv0','inc','exp','save','rate','years'];
+const V=id=>parseFloat($(id).value)||0;
+const twd=n=>'NT$ '+Math.round(n).toLocaleString('en-US');
+const wan=n=>(n/10000).toLocaleString('en-US',{maximumFractionDigits:0})+'萬';
+/* financial functions (monthly, end-of-period) */
+const g=(i,n)=>Math.pow(1+i,n);
+const FV=(i,n,p,pv)=>i? pv*g(i,n)+p*(g(i,n)-1)/i : pv+p*n;
+const PV=(i,n,p)=>i? p*(1-1/g(i,n))/i : p*n;
+const PMTreq=(i,n,pv,fv)=>i? (fv-pv*g(i,n))*i/(g(i,n)-1) : (fv-pv)/n;
+const LOAN=(i,n,L)=>i? L*i/(1-1/g(i,n)) : L/n;
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  document.querySelectorAll('[data-m]').forEach(f=>f.classList.toggle('on',f.dataset.m===m));
+  const p=presets[m];ids.forEach(k=>{if(k in p)$(k).value=p[k]});
+  calc();
+}
+
+function calc(){
+  const r=V('rate')/100,i=r/12,y=Math.max(1,V('years')),n=Math.round(y*12);
+  const pv0=V('pv0'),save=V('save'),inc=V('inc'),exp=V('exp'),cap=inc-exp;
+  let goal,lbl,extra=[];
+  if(mode==='house'){
+    const price=V('price'),ltv=V('ltv')/100,li=V('lrate')/1200,ln=V('lyears')*12;
+    goal=price*(1-ltv);lbl='頭期款目標';
+    const loan=price*ltv,mp=LOAN(li,ln,loan);
+    extra={loan,mp,ratio:inc?mp/inc:0,left:cap-mp,li,ln};
+  }else if(mode==='retire'){
+    goal=PV(V('drate')/1200,V('wyears')*12,V('wd'));lbl='退休時需備妥金額 (PV)';
+  }else{goal=V('goal');lbl='目標金額';}
+
+  const fv=FV(i,n,save,pv0), gap=fv-goal, need=Math.max(0,PMTreq(i,n,pv0,goal));
+  const pct=goal>0?Math.min(100,fv/goal*100):0;
+  $('lGoal').textContent=lbl;
+  $('sGoal').textContent=twd(goal);$('sFv').textContent=twd(fv);
+  $('sGap').textContent=(gap>=0?'+':'−')+twd(Math.abs(gap)).slice(0);
+  $('sPmt').textContent=twd(need);
+  $('heroPct').textContent=Math.round(goal>0?fv/goal*100:0)+'%';
+  $('heroBar').style.width=pct+'%';
+  $('heroNote').textContent=gap>=0?'依目前計畫可以如期達標':'目前計畫尚差 '+wan(-gap);
+
+  drawChart(i,y,save,pv0,goal);
+
+  /* formulas */
+  const rt=(V('rate')).toString()+'%';
+  let fx=`<div><span class="t">FV 終值</span><code>=FV(${rt}/12, ${n}, -${save}, -${pv0})</code><strong>${twd(fv)}</strong></div>
+  <div><span class="t">PMT 年金</span><code>=PMT(${rt}/12, ${n}, -${pv0}, ${Math.round(goal)})</code><strong>${twd(-PMTreq(i,n,pv0,goal)*-1)}</strong></div>
+  <div><span class="t">PV 現值</span><code>=PV(${rt}/12, ${n}, 0, -${Math.round(goal)}) → 今天一次投入</code><strong>${twd(Math.max(0,goal/g(i,n)))}</strong></div>`;
+  if(mode==='retire')fx+=`<div><span class="t">PV 退休金</span><code>=PV(${V('drate')}%/12, ${V('wyears')*12}, -${V('wd')})</code><strong>${twd(goal)}</strong></div>`;
+  if(mode==='house')fx+=`<div><span class="t">PMT 房貸</span><code>=PMT(${V('lrate')}%/12, ${extra.ln}, -${Math.round(extra.loan)})</code><strong>${twd(extra.mp)}／月</strong></div>`;
+  $('fx').innerHTML=fx;
+
+  /* sensitivity */
+  const rows=[Math.max(0,r-.02),r,r+.02].map((rr,k)=>{
+    const ii=rr/12,f=FV(ii,n,save,pv0),np=Math.max(0,PMTreq(ii,n,pv0,mode==='retire'?goal:goal));
+    const okk=f>=goal;
+    return `<tr><td>${['保守','基準','積極'][k]} ${(rr*100).toFixed(1)}%</td><td>${twd(f)}</td><td>${twd(np)}</td><td class="${okk?'ok':'no'}">${okk?'可達標':'未達標'}</td></tr>`;
+  }).join('');
+  $('sens').innerHTML=`<tr><th>情境（年報酬）</th><th>預計累積 FV</th><th>每月需投入</th><th>結果</th></tr>${rows}`;
+
+  /* advice */
+  const A=[];
+  if(gap>=0)A.push(['g','目標可以達成','照目前每月 '+twd(save)+' 的投入，預計比目標多 '+twd(gap)+'。可以考慮把多出的部分留作緊急預備金，或降低每月投入以保留現金流。']);
+  else{
+    A.push(['w','先補上缺口','缺口 '+twd(-gap)+'。每月投入需提高到 '+twd(need)+'（現在是 '+twd(save)+'），每月多 '+twd(need-save)+'。']);
+    if(cap>0){
+      if(need<=cap)A.push(['','這個金額負擔得起','你的每月結餘約 '+twd(cap)+'，提高到 '+twd(need)+' 仍在能力範圍內。可以優先調整支出或自動轉帳。']);
+      else A.push(['w','每月結餘不足','需投入 '+twd(need)+' 已超過結餘 '+twd(cap)+'。建議延長年限、降低目標，或增加收入。']);
+    }
+    let m=n;while(m<720&&FV(i,m,save,pv0)<goal)m++;
+    A.push(['',m<720?'或者把時間拉長':'時間拉長也不夠',m<720?'維持每月 '+twd(save)+' 不變，約需 '+(m/12).toFixed(1)+' 年可達標（比原計畫多 '+((m-n)/12).toFixed(1)+' 年）。':'在 60 年內仍無法達標，請調整目標或每月投入。']);
+  }
+  A.push(['','若想一次到位','現在一次拿出 '+twd(Math.max(0,goal/g(i,n)))+'（PV），不再投入也能在 '+y+' 年後達到目標；你目前的資產 '+twd(pv0)+' 約佔其中 '+Math.round(Math.min(100,pv0/Math.max(1,goal/g(i,n))*100))+'%。']);
+  if(mode==='house'){
+    const rp=Math.round(extra.ratio*100);
+    if(extra.ratio>0.4)A.push(['w','房貸負擔偏高','月付金 '+twd(extra.mp)+'，佔收入 '+rp+'%，超過一般建議的 40%。可提高頭期款、降低總價或拉長年限。']);
+    else A.push(['g','房貸負擔在合理範圍','月付金 '+twd(extra.mp)+'，佔收入 '+rp+'%，低於 40% 建議上限。']);
+    A.push(['','購屋後每月現金流','收入扣除生活支出與房貸後剩 '+twd(extra.left)+(extra.left<0?'，入不敷出，需要先調整計畫。':'，可作為購屋後的儲蓄。')]);
+  }
+  if(mode==='retire')A.push(['','退休期的提醒','提領期折現率 '+V('drate')+'% 低於累積期報酬，是比較保守的假設；若物價上漲，每月提領額也需要逐年調高。']);
+  $('advice').innerHTML=A.map(a=>`<li class="${a[0]}"><b>${a[1]}</b>${a[2]}</li>`).join('');
+}
+
+function drawChart(i,y,save,pv0,goal){
+  const W=640,H=300,L=52,R=16,T=16,B=34,Y=Math.round(y);
+  const pts=[],base=[];
+  for(let k=0;k<=Y;k++){pts.push(FV(i,k*12,save,pv0));base.push(FV(i,k*12,0,pv0));}
+  const mx=Math.max(goal,...pts)*1.1||1;
+  const X=k=>L+(W-L-R)*k/Math.max(1,Y),Yp=v=>T+(H-T-B)*(1-v/mx);
+  const path=a=>a.map((v,k)=>(k?'L':'M')+X(k).toFixed(1)+' '+Yp(v).toFixed(1)).join(' ');
+  let s='';
+  for(let t=0;t<=4;t++){const v=mx*t/4,yy=Yp(v);
+    s+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11" fill="var(--muted)">${wan(v)}</text>`;}
+  const step=Math.max(1,Math.ceil(Y/8));
+  for(let k=0;k<=Y;k+=step)s+=`<text x="${X(k)}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--muted)">${k}年</text>`;
+  s+=`<path d="${path(pts)} L${X(Y)} ${Yp(0)} L${X(0)} ${Yp(0)}Z" fill="var(--breeze)" opacity=".22"/>`;
+  s+=`<path d="${path(base)}" fill="none" stroke="var(--breeze)" stroke-width="3" stroke-linecap="round"/>`;
+  s+=`<path d="${path(pts)}" fill="none" stroke="var(--tile)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${Yp(goal)}" y2="${Yp(goal)}" stroke="var(--zest)" stroke-width="3" stroke-dasharray="8 6"/>`;
+  s+=`<circle cx="${X(Y)}" cy="${Yp(pts[Y])}" r="6" fill="var(--zest)" stroke="var(--tile)" stroke-width="3"/>`;
+  $('chart').innerHTML=s;
+}
+
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+ids.forEach(k=>$(k).addEventListener('input',calc));
+setMode('house');
+</script>
+</body>
+</html>
